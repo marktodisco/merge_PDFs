@@ -53,7 +53,7 @@ class PDFMerger:
         print(f'Merged file was written to {self.output}\n')
 
     def __del__(self):
-        if self._num_files == 1:
+        if self._num_files == 1 and not isinstance(self.fid, list):
             self.fid.close()
         else:
             for fid in self.fid:

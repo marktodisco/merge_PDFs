@@ -18,19 +18,25 @@ def main(args=None):
     Entry point into the `pdfmerge` program.
     """
     arguments = args or sys.argv[1:]
-    input_dir, output_name = parse_arguments(arguments)
-    if input_dir is not None:
-        files = validate_directory(input_dir)
+    parsed_args = parse_arguments(arguments)
+    
+    sort = True
+    
+    if parsed_args.files is not None:
+        files = parsed_args.files
+        sort = False
+    elif parsed_args.input_dir is not None:
+        files = validate_directory(parsed_args.input_dir)
     else:
         files = get_files(os.getcwd())
     
     if files is not None:
-        merge(files, output_name)
+        merge(files, parsed_args.output_name, sort)
     else:
        print('\nCANCELLED\n')
 
 
-def parse_arguments(args: list) -> Tuple[str, str]:
+def parse_arguments(args: list) -> argparse.Namespace:
     """
     Extract command line arguments.
 
@@ -41,27 +47,30 @@ def parse_arguments(args: list) -> Tuple[str, str]:
 
     Returns
     -------
-    Tuple[str, str]
-        Path to the input directory or None if not specified.
-        Name of the output file, or None if not specified.
+    argparse.Namespace
+        Returns the parsed arguments that were passed into the function.
+        Arguments can be accessed using dot notation.
     
     Notes
     -----
     The only valid arguments are as follows.
     
+    -f : Name(s) of file(s) to be combined.
     -o : Name of output file.
     -d : Name of input directory. Selects all PDfS in the specifed directory.
     """
     parser = argparse.ArgumentParser(prog='pdfmerge',
                                      description="Merge pdf files.")
     
-    parser.add_argument('-o', help='Ouput file name.', default=None)
-    parser.add_argument('-d', help='Input directory.', default=None)
+    parser.add_argument(
+        '-f', '--files', nargs='*', help='File names.', default=None)
+    parser.add_argument(
+        '-o', '--output-name', help='Ouput file name.', default=None)
+    parser.add_argument(
+        '-d', '--input-dir', help='Input directory.', default=None)
     parsed_args = parser.parse_args()
-    output_name = parsed_args.o
-    input_dir = parsed_args.d
     
-    return input_dir, output_name
+    return parsed_args
 
 
 def get_files(work_dir: str = './') -> List[str]:
@@ -106,7 +115,7 @@ def validate_directory(dir_path: str) -> List[str]:
     return all_pdfs
 
 
-def merge(files: List[str], output_name=None):
+def merge(files: List[str], output_name=None, sort=True):
     """
     Combine separate PDF files into a single document.
 
@@ -118,9 +127,10 @@ def merge(files: List[str], output_name=None):
         Path (including file name) to where the merged file will be saved.
         Default is None.
     """
-    sort_keys = ask_sort(files)
-    if sort_keys is not None:
-        files = sort(files, sort_keys)
+    if sort:
+        sort_keys = ask_sort(files)
+        if sort_keys is not None:
+            files = sort(files, sort_keys)
 
     if files == '':
         print('Program stopped by user.')

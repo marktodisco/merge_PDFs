@@ -1,0 +1,12 @@
+name: pdfmerge-dev
+
+dependencies:
+  - python=3.7
+  - pip
+  - pip:
+    - PyPDF2
+    - setuptools
+    - build
+    - twine
+    - flake8
+    - pytest

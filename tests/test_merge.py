@@ -23,8 +23,8 @@ class TestMergeFiles(unittest.TestCase):
     def tearDown(self) -> None:
         shutil.rmtree(self.output_dir)
 
-    def test_merge_files(self):
-        merge(self.files, output_name=self.output_name)
+    def test_merge_files(self) -> None:
+        merge(self.files, output_name=str(self.output_name))
 
         [output_file] = list(self.output_dir.glob('*.pdf'))
 

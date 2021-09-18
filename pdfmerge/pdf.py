@@ -40,26 +40,26 @@ class PDFMerger:
         self.writer = PyPDF2.PdfFileWriter()
         self.output = output
 
-    def read(self):
+    def read(self) -> None:
         self.__read_pdf()
         self.__add_pages_to_writer()
 
-    def write(self):
+    def write(self) -> None:
         self.__write_pages_to_file()
 
-    def __read_pdf(self):
+    def __read_pdf(self) -> None:
         for file in self.file_path:
             self.pdf.append(PyPDF2.PdfFileReader(file, strict=False))
             self._num_files += 1
 
-    def __add_pages_to_writer(self):
+    def __add_pages_to_writer(self) -> None:
         for pdf in self.pdf:
             num_pages = pdf.getNumPages()
             for i in range(num_pages):
                 page = pdf.getPage(i)
                 self.writer.addPage(page)
 
-    def __write_pages_to_file(self):
+    def __write_pages_to_file(self) -> None:
         with open(self.output, 'wb') as output:
             self.writer.write(output)
         print(f'Merged file was written to {self.output}\n')

@@ -1,39 +1,37 @@
 import argparse
 import os
-from glob import glob
-import tkinter as tk
-from tkinter.filedialog import askopenfilenames
-from typing import List, Tuple, Iterable
 import sys
-import warnings
+import tkinter as tk
+from glob import glob
+from tkinter.filedialog import askopenfilenames
+from typing import Iterable, List
 
-from pdfmerge.PDFMerger import PDFMerger
+import PyPDF2
 
-warnings.filterwarnings(
-    "ignore", r"Superfluous whitespace found in object header.*")
-        
 
-def main(args=None):
-    """
-    Entry point into the `pdfmerge` program.
-    """
-    arguments = args or sys.argv[1:]
-    parsed_args = parse_arguments(arguments)
-    
+def main(args: argparse.Namespace = None) -> None:
+    parsed_args = parse_arguments(args or sys.argv[1:])
+
+    # Selection of file can come directly from the `args` or can be selected
+    # using the GUI. These actions should be assigned to a separate part of
+    # the program.
     sort = True
-    
     if parsed_args.files is not None:
+        # OrderedFileSelectionStrategy
         files = parsed_args.files
         sort = False
     elif parsed_args.input_dir is not None:
+        # DirectoryFileSelectionStrategy
         files = validate_directory(parsed_args.input_dir)
     else:
+        # This is NOT a PDFMergerStrategy. This is just a way of selecting
+        # files, and should be separated from main().
         files = get_files(os.getcwd())
-    
+
     if files is not None:
         merge(files, parsed_args.output_name, sort)
     else:
-       print('\nCANCELLED\n')
+        print('\nCANCELLED\n')
 
 
 def parse_arguments(args: list) -> argparse.Namespace:
@@ -50,18 +48,18 @@ def parse_arguments(args: list) -> argparse.Namespace:
     argparse.Namespace
         Returns the parsed arguments that were passed into the function.
         Arguments can be accessed using dot notation.
-    
+
     Notes
     -----
     The only valid arguments are as follows.
-    
+
     -f : Name(s) of file(s) to be combined.
     -o : Name of output file.
     -d : Name of input directory. Selects all PDfS in the specifed directory.
     """
     parser = argparse.ArgumentParser(prog='pdfmerge',
                                      description="Merge pdf files.")
-    
+
     parser.add_argument(
         '-f', '--files', nargs='*', help='File names.', default=None)
     parser.add_argument(
@@ -69,7 +67,7 @@ def parse_arguments(args: list) -> argparse.Namespace:
     parser.add_argument(
         '-d', '--input-dir', help='Input directory.', default=None)
     parsed_args = parser.parse_args()
-    
+
     return parsed_args
 
 
@@ -127,20 +125,15 @@ def merge(files: List[str], output_name=None, sort=True):
         Path (including file name) to where the merged file will be saved.
         Default is None.
     """
-    if sort:
-        sort_keys = ask_sort(files)
-        if sort_keys is not None:
-            files = sort(files, sort_keys)
-
     if files == '':
         print('Program stopped by user.')
         return
-    
+
     if output_name is None:
         save_path = os.path.abspath('merged.pdf')
     else:
         save_path = os.path.abspath(output_name)
-    
+
     merger = PDFMerger(files, save_path)
     merger.read()
     merger.write()
@@ -186,22 +179,23 @@ def ask_sort(files: List[str]) -> List[int]:
     print("If you wish to re-order the files, enter their ID's separated by spaces.\n")
     print_files(files)
     print()
-    
+
     invalid_sort = True
-    
+
     while invalid_sort:
-        
+
         sort_keys = input('Updated ID Order: ') or None
         invalid_sort, sort_keys = parse_string_keys(sort_keys)
-        
+
         if not invalid_sort and sort_keys is not None:
             if len(sort_keys) != len(files):
                 invalid_sort = True
-            
+
         if invalid_sort:
             print('\nInvalid input. Try again.\n')
 
     return sort_keys
+
 
 def parse_string_keys(keys: str, sep: str = ' ') -> List[int]:
     """
@@ -224,21 +218,21 @@ def parse_string_keys(keys: str, sep: str = ' ') -> List[int]:
         invalid_sort = False
         print('\nUsing original sort order.\n')
         return invalid_sort, sort_keys
-    
+
     try:
         keys = keys.split(sep)
         keys = [int(k) for k in keys]
         keys = [k-1 for k in keys]  # Decrement by 1, because zero-indexing.
-        
+
         if not is_permation(keys, range(len(keys))):
             invalid_sort = True
         else:
             invalid_sort = False
-    
+
     except Exception:
         keys = False
         invalid_sort = True
-        
+
     return invalid_sort, keys
 
 
@@ -279,6 +273,61 @@ def print_files(files: List[str]):
         print(msg_template.format(i+1, trimmed_file))
 
 
-if __name__ == '__main__':
-    main()
-    
+class PDFMerger:
+
+    def __init__(self, files, output):
+
+        # Validate arguments
+        if isinstance(files, tuple):
+            files = list(files)
+        elif (not isinstance(files, str)) and (not isinstance(files, list)):
+            raise Exception('\'files\' must be a \'str\' or \'list\'')
+
+        self.file_path = files
+        self.fid = None
+        self._num_files = 0
+        self.pdf = None
+        self.writer = PyPDF2.PdfFileWriter()
+        self.output = output
+
+    def read(self):
+        self.__read_pdf()
+        self.__add_pages_to_writer()
+
+    def write(self):
+        self.__write_pages_to_file()
+
+    def __read_pdf(self):
+        if isinstance(self.file_path, str):  # If one path is passed in
+            self.fid = open(self.file_path, 'rb')
+            self.pdf = PyPDF2.PdfFileReader(self.fid, strict=False)
+            print('strict:', self.pdf.strict)
+            self._num_files = 1
+
+        elif isinstance(self.file_path, list):  # If more than 1 path is passed in
+            self.fid = []
+            self.pdf = []
+            for file in self.file_path:
+                fid = open(file, 'rb')
+                self.fid.append(fid)
+                self.pdf.append(PyPDF2.PdfFileReader(fid, strict=False))
+                self._num_files += 1
+
+    def __add_pages_to_writer(self):
+        for pdf in self.pdf:
+            num_pages = pdf.getNumPages()
+            for i in range(num_pages):
+                page = pdf.getPage(i)
+                self.writer.addPage(page)
+
+    def __write_pages_to_file(self):
+        with open(self.output, 'wb') as output:
+            self.writer.write(output)
+        print(f'Merged file was written to {self.output}\n')
+
+    def __del__(self):
+        if self._num_files == 1 and not isinstance(self.fid, list):
+            self.fid.close()
+        else:
+            for fid in self.fid:
+                fid.close()

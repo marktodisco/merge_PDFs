@@ -1,44 +1,21 @@
 import argparse
 import os
-from glob import glob
-from typing import Iterable, List, Union
+from pathlib import Path
+from typing import List, Union
 
 
-def parse_arguments(args: List[str]) -> argparse.Namespace:
-    """
-    Extract command line arguments.
-
-    Parameters
-    ----------
-    args : list
-        Program arguments. See Notes section.
-
-    Returns
-    -------
-    argparse.Namespace
-        Returns the parsed arguments that were passed into the function.
-        Arguments can be accessed using dot notation.
-
-    Notes
-    -----
-    The only valid arguments are as follows.
-
-    -f : Name(s) of file(s) to be combined.
-    -o : Name of output file.
-    -d : Name of input directory. Selects all PDfS in the specifed directory.
-    """
-    parser = argparse.ArgumentParser(prog='pdfmerge',
-                                     description="Merge pdf files.")
-
-    parser.add_argument(
-        '-f', '--files', nargs='*', help='File names.', default=None)
-    parser.add_argument(
-        '-o', '--output-name', help='Ouput file name.', default=None)
-    parser.add_argument(
-        '-d', '--input-dir', help='Input directory.', default=None)
-    parsed_args = parser.parse_args()
-
-    return parsed_args
+def parse_arguments(
+    args: Union[List[str], argparse.Namespace]
+) -> argparse.Namespace:
+    if isinstance(args, argparse.Namespace):
+        return args
+    parser = argparse.ArgumentParser(
+        prog='pdfmerge', description="Merge pdf files."
+    )
+    parser.add_argument('-f', '--files', nargs='*', help='File names.')
+    parser.add_argument('-o', '--output-name', help='Ouput file name.')
+    parser.add_argument('-d', '--input-dir', help='Input directory.')
+    return parser.parse_args(args)
 
 
 def validate_directory(dir_path: Union[str, os.PathLike]) -> List[str]:
@@ -55,9 +32,10 @@ def validate_directory(dir_path: Union[str, os.PathLike]) -> List[str]:
     List[str]
         List of paths to each PDF file in `dir_path`.
     """
-    wildcard = os.path.join(dir_path, '*.pdf')
-    all_pdfs = glob(wildcard)
-    return all_pdfs
+    # wildcard = os.path.join(dir_path, '*.pdf')
+    # all_pdfs = glob(wildcard)
+    # return all_pdfs
+    return [str(path) for path in Path(dir_path).glob('*.pdf')]
 
 
 def print_files(files: List[str]):

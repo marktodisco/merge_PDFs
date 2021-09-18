@@ -2,7 +2,7 @@ import argparse
 import sys
 
 from pdfmerge import utils
-from pdfmerge.utils import merge
+from pdfmerge.pdf import merge
 
 
 def main(args: argparse.Namespace = None) -> None:

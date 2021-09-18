@@ -10,3 +10,4 @@ dependencies:
     - twine
     - flake8
     - pytest
+    - rope

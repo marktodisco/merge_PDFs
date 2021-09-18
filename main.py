@@ -1,11 +1,8 @@
 import argparse
-import os
 import sys
 
-from typing import List
-
-from pdfmerge.pdf import PDFMerger
 from pdfmerge import utils
+from pdfmerge.utils import merge
 
 
 def main(args: argparse.Namespace = None) -> None:
@@ -23,9 +20,7 @@ def main(args: argparse.Namespace = None) -> None:
         # DirectoryFileSelectionStrategy
         files = utils.validate_directory(parsed_args.input_dir)
     else:
-        # This is NOT a PDFMergerStrategy. This is just a way of selecting
-        # files, and should be separated from main().
-        files = utils.get_files(os.getcwd())
+        raise ValueError(f'Invalid files: {parsed_args.files}')
 
     if files is not None:
         merge(files, parsed_args.output_name, sort)

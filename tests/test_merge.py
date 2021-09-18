@@ -3,10 +3,10 @@ from pathlib import Path
 import shutil
 import filecmp
 
-from src.main import merge
+from pdfmerge.utils import merge
 
 
-class TestMerge(unittest.TestCase):
+class TestMergeFiles(unittest.TestCase):
 
     def setUp(self) -> None:
         self.baseline_file = Path('./tests/baseline.pdf').resolve()

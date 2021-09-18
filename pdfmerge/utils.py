@@ -1,7 +1,5 @@
 import argparse
-import tkinter as tk
 from glob import glob
-from tkinter.filedialog import askopenfilenames
 from typing import Iterable, List
 import os
 
@@ -69,30 +67,6 @@ def parse_arguments(args: list) -> argparse.Namespace:
     parsed_args = parser.parse_args()
 
     return parsed_args
-
-
-def get_files(work_dir: str = './') -> List[str]:
-    """Allow user to select files using a GUI.
-
-    Parameters
-    ----------
-    work_dir : str, optional
-        The working directory, by default './'
-
-    Returns
-    -------
-    List[str]
-        List of file names, or None if no files are selected.
-    """
-    tk.Tk().withdraw()
-    files = askopenfilenames(
-        initialdir=work_dir,
-        title='Chose files to merge',
-        filetypes=(('PDF', '*.pdf'), ('PDF files', '*.pdf'))
-    )
-    if files == '':
-        return None
-    return list(files)
 
 
 def validate_directory(dir_path: str) -> List[str]:

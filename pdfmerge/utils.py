@@ -1,7 +1,7 @@
 import argparse
 import os
 from pathlib import Path
-from typing import List, Union
+from typing import Iterable, List, Sequence, Union
 
 
 def parse_arguments(
@@ -18,7 +18,7 @@ def parse_arguments(
     return parser.parse_args(args)
 
 
-def validate_directory(dir_path: Union[str, os.PathLike]) -> List[str]:
+def get_pdf_files(dir_path: Union[str, os.PathLike]) -> Iterable[str]:
     """
     Get all PDF file names in a directory.
 
@@ -32,24 +32,4 @@ def validate_directory(dir_path: Union[str, os.PathLike]) -> List[str]:
     List[str]
         List of paths to each PDF file in `dir_path`.
     """
-    # wildcard = os.path.join(dir_path, '*.pdf')
-    # all_pdfs = glob(wildcard)
-    # return all_pdfs
-    return [str(path) for path in Path(dir_path).glob('*.pdf')]
-
-
-def print_files(files: List[str]):
-    """
-    Display file name and assign them an index.
-
-    Parameters
-    ----------
-    files : List[str]
-        List of files to display via CLI.
-    """
-    msg_template = '[{}] {}'
-    parent = os.path.dirname(files[0])
-    print(f'Parent Directory: {parent}')
-    for i, f in enumerate(files):
-        trimmed_file = f.replace(parent, '')
-        print(msg_template.format(i+1, trimmed_file))
+    return (str(path) for path in Path(dir_path).glob('*.pdf'))

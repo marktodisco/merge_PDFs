@@ -1,5 +1,5 @@
-import os
-from typing import Iterable
+from pathlib import Path
+from typing import Iterable, List
 
 import PyPDF2
 
@@ -20,10 +20,8 @@ def merge(files: Iterable[str], output_name: str = None) -> None:
         print('Program stopped by user.')
         return
 
-    if output_name is None:
-        save_path = os.path.abspath('merged.pdf')
-    else:
-        save_path = os.path.abspath(output_name)
+    save_path = 'merged.pdf' if output_name is None else output_name
+    save_path = str(Path(save_path).resolve())
 
     merger = PDFMerger(files, save_path)
     merger.read()
@@ -31,19 +29,14 @@ def merge(files: Iterable[str], output_name: str = None) -> None:
 
 
 class PDFMerger:
+    pdf: List[PyPDF2.PdfFileReader] = []
 
     def __init__(self, files: Iterable[str], output: str):
-
-        # Validate arguments
-        if isinstance(files, tuple):
-            files = list(files)
-        elif (not isinstance(files, str)) and (not isinstance(files, list)):
-            raise Exception('\'files\' must be a \'str\' or \'list\'')
+        if not isinstance(files, Iterable):
+            raise Exception('`files` must be a str or list')
 
         self.file_path = files
-        self.fid = None
         self._num_files = 0
-        self.pdf = None
         self.writer = PyPDF2.PdfFileWriter()
         self.output = output
 
@@ -55,21 +48,9 @@ class PDFMerger:
         self.__write_pages_to_file()
 
     def __read_pdf(self):
-        # If one path is passed in
-        if isinstance(self.file_path, str):
-            self.fid = open(self.file_path, 'rb')
-            self.pdf = PyPDF2.PdfFileReader(self.fid, strict=False)
-            print('strict:', self.pdf.strict)
-            self._num_files = 1
-        # If more than 1 path is passed in
-        elif isinstance(self.file_path, list):
-            self.fid = []
-            self.pdf = []
-            for file in self.file_path:
-                fid = open(file, 'rb')
-                self.fid.append(fid)
-                self.pdf.append(PyPDF2.PdfFileReader(fid, strict=False))
-                self._num_files += 1
+        for file in self.file_path:
+            self.pdf.append(PyPDF2.PdfFileReader(file, strict=False))
+            self._num_files += 1
 
     def __add_pages_to_writer(self):
         for pdf in self.pdf:
@@ -82,10 +63,3 @@ class PDFMerger:
         with open(self.output, 'wb') as output:
             self.writer.write(output)
         print(f'Merged file was written to {self.output}\n')
-
-    def __del__(self):
-        if self._num_files == 1 and not isinstance(self.fid, list):
-            self.fid.close()
-        else:
-            for fid in self.fid:
-                fid.close()

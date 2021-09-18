@@ -3,7 +3,7 @@ from pathlib import Path
 import shutil
 import filecmp
 
-from pdfmerge.utils import merge
+from pdfmerge.pdf import merge
 
 
 class TestMergeFiles(unittest.TestCase):

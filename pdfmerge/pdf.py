@@ -1,4 +1,33 @@
+import os
+from typing import List
+
 import PyPDF2
+
+
+def merge(files: List[str], output_name=None, sort=True):
+    """
+    Combine separate PDF files into a single document.
+
+    Parameters
+    ----------
+    files : List[str]
+        List of file paths to merge.
+    output_name : str, optional
+        Path (including file name) to where the merged file will be saved.
+        Default is None.
+    """
+    if files == '':
+        print('Program stopped by user.')
+        return
+
+    if output_name is None:
+        save_path = os.path.abspath('merged.pdf')
+    else:
+        save_path = os.path.abspath(output_name)
+
+    merger = PDFMerger(files, save_path)
+    merger.read()
+    merger.write()
 
 
 class PDFMerger:

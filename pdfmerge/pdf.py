@@ -1,10 +1,10 @@
 import os
-from typing import List
+from typing import Iterable
 
 import PyPDF2
 
 
-def merge(files: List[str], output_name=None, sort=True):
+def merge(files: Iterable[str], output_name: str = None) -> None:
     """
     Combine separate PDF files into a single document.
 
@@ -32,7 +32,7 @@ def merge(files: List[str], output_name=None, sort=True):
 
 class PDFMerger:
 
-    def __init__(self, files, output):
+    def __init__(self, files: Iterable[str], output: str):
 
         # Validate arguments
         if isinstance(files, tuple):

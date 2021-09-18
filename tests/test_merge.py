@@ -24,7 +24,7 @@ class TestMergeFiles(unittest.TestCase):
         shutil.rmtree(self.output_dir)
 
     def test_merge_files(self):
-        merge(self.files, output_name=self.output_name, sort=False)
+        merge(self.files, output_name=self.output_name)
 
         [output_file] = list(self.output_dir.glob('*.pdf'))
 

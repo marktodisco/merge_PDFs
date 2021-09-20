@@ -3,22 +3,22 @@ from pathlib import Path
 import shutil
 import filecmp
 
+
 from pdfmerge.pdf import merge
 
 
 class TestMergeFiles(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.baseline_file = Path('./tests/baseline.pdf').resolve()
+        TESTS_PATH = Path('./src/tests').resolve()
 
-        self.output_dir: Path = Path('./tests/temp').resolve()
+        self.baseline_file = TESTS_PATH / 'baseline.pdf'
+
+        self.output_dir: Path = TESTS_PATH / 'temp'
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        self.output_name = (self.output_dir / 'output.pdf').resolve()
-        self.files = [
-            str(Path(f'./tests/{i}.pdf').resolve())
-            for i in range(1, 4)
-        ]
+        self.output_name = self.output_dir / 'output.pdf'
+        self.files = [str(TESTS_PATH / f'{i}.pdf') for i in range(1, 4)]
 
     def tearDown(self) -> None:
         shutil.rmtree(self.output_dir)

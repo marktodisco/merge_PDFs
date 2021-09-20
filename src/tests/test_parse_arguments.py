@@ -1,4 +1,6 @@
+from argparse import Namespace
 import unittest
+
 
 from pdfmerge.utils import parse_arguments
 
@@ -8,6 +10,10 @@ class DynamicTestCase(unittest.TestCase):
     num_files = 3
     files = [f'{i}.pdf' for i in range(1, num_files + 1)]
     output_name = 'output.pdf'
+
+    def test_namespace_is_passed_through(self) -> None:
+        args = Namespace(files=self.files, output_name=self.output_name)
+        self.assertEqual(parse_arguments(args), args)
 
     def test_files_are_parased_correctly(self) -> None:
         for i in range(1, self.num_files + 1):
@@ -25,4 +31,4 @@ class DynamicTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main()  # pragma: no cover

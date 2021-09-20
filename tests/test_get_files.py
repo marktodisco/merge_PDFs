@@ -13,7 +13,7 @@ class TestGetFiles(unittest.TestCase):
         self.assertSequenceEqual(get_files(args), files)
 
     def test_files_are_collected_from_directory(self) -> None:
-        input_dir = './src/tests'
+        input_dir = './tests'
         args = Namespace(files=None, input_dir=input_dir)
 
         actual_files = [str(Path(f)) for f in get_files(args)]

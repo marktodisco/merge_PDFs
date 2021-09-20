@@ -13,11 +13,10 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    pakage_dir={"": "src"},
-    packages=setuptools.find_packages(where="src"),
+    packages=setuptools.find_packages(),
     entry_points={
         "console_scripts": [
-            "pdfmerge=src.main:main",
+            "pdfmerge=main:main",
         ],
     },
 )

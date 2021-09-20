@@ -10,7 +10,7 @@ from pdfmerge.pdf import merge
 class TestMergeFiles(unittest.TestCase):
 
     def setUp(self) -> None:
-        TESTS_PATH = Path('./src/tests').resolve()
+        TESTS_PATH = Path('./tests').resolve()
 
         self.baseline_file = TESTS_PATH / 'baseline.pdf'
 

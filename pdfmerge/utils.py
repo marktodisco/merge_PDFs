@@ -38,3 +38,14 @@ def validate_paths_and_handle_error(paths: Sequence[str]) -> Sequence[str]:
         raise FileNotFoundError(invalid_paths)
     paths = [Path(path).resolve().as_posix() for path in paths]
     return paths
+
+
+def validate_files_and_handle_error(files: Sequence[str]) -> Sequence[str]:
+    for file in files:
+        if not Path(file).suffix == '.pdf':
+            raise ValueError(f'{file} is not a PDF')
+    return [Path(file).resolve().as_posix() for file in files]
+
+
+# def validate_output_name_and_handle_error():
+#     raise NotImplementedError

@@ -30,3 +30,11 @@ def get_files(args: argparse.Namespace) -> Sequence[str]:
         return [str(path) for path in Path(args.input_dir).glob('*.pdf')]
     else:
         raise ValueError(f'Invalid files: {args.files}')
+
+
+def validate_paths_and_handle_error(paths: Sequence[str]) -> Sequence[str]:
+    invalid_paths = list(filter(lambda path: not Path(path).exists(), paths))
+    if len(invalid_paths) > 0:
+        raise FileNotFoundError(invalid_paths)
+    paths = [Path(path).resolve().as_posix() for path in paths]
+    return paths

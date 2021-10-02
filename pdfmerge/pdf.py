@@ -1,7 +1,12 @@
 from pathlib import Path
-from typing import Iterable, List
+from typing import Iterable
 
 import PyPDF2
+
+from pdfmerge.utils import (
+    validate_files_and_handle_error,
+    # validate_output_name_and_handle_error,
+)
 
 
 def merge(files: Iterable[str], output_name: str = None) -> None:
@@ -23,43 +28,7 @@ def merge(files: Iterable[str], output_name: str = None) -> None:
     save_path = 'merged.pdf' if output_name is None else output_name
     save_path = str(Path(save_path).resolve())
 
-    merger = PDFMerger(files, save_path)
-    merger.read()
-    merger.write()
-
-
-class PDFMerger:
-    pdf: List[PyPDF2.PdfFileReader] = []
-
-    def __init__(self, files: Iterable[str], output: str):
-        if not isinstance(files, Iterable):
-            raise Exception('`files` must be a str or list')
-
-        self.file_path = files
-        self._num_files = 0
-        self.writer = PyPDF2.PdfFileWriter()
-        self.output = output
-
-    def read(self) -> None:
-        self.__read_pdf()
-        self.__add_pages_to_writer()
-
-    def write(self) -> None:
-        self.__write_pages_to_file()
-
-    def __read_pdf(self) -> None:
-        for file in self.file_path:
-            self.pdf.append(PyPDF2.PdfFileReader(file, strict=False))
-            self._num_files += 1
-
-    def __add_pages_to_writer(self) -> None:
-        for pdf in self.pdf:
-            num_pages = pdf.getNumPages()
-            for i in range(num_pages):
-                page = pdf.getPage(i)
-                self.writer.addPage(page)
-
-    def __write_pages_to_file(self) -> None:
-        with open(self.output, 'wb') as output:
-            self.writer.write(output)
-        print(f'Merged file was written to {self.output}\n')
+    merger = PyPDF2.PdfFileMerger(strict=False)
+    for file in files:
+        merger.append(file)
+    merger.write(output_name)

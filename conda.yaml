@@ -9,5 +9,8 @@ dependencies:
     - build
     - twine
     - flake8
-    - pytest
     - rope
+    - pytest
+    - mypy
+    - converage
+    - ipython

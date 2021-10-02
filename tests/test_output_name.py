@@ -6,15 +6,15 @@ from pdfmerge.utils import validate_output_name_and_handle_error
 
 class TestOutputName(unittest.TestCase):
 
-    def test_output_file_is_pdf(self):
+    def test_output_file_is_pdf(self) -> None:
         output_name = validate_output_name_and_handle_error('test.pdf')
         self.assertTrue(Path(output_name).suffix == '.pdf')
 
-    def test_raise_error_if_not_pdf(self):
+    def test_raise_error_if_not_pdf(self) -> None:
         with self.assertRaises(ValueError):
             _ = validate_output_name_and_handle_error('test.txt')
 
-    def test_path_is_absolute(self):
+    def test_path_is_absolute(self) -> None:
         output_name = validate_output_name_and_handle_error('./test.pdf')
         self.assertTrue(Path(output_name).is_absolute())
 

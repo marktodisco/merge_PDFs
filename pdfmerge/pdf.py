@@ -1,15 +1,14 @@
-from pathlib import Path
-from typing import Iterable
+from typing import Sequence
 
 import PyPDF2
 
 from pdfmerge.utils import (
     validate_files_and_handle_error,
-    # validate_output_name_and_handle_error,
+    validate_output_name_and_handle_error
 )
 
 
-def merge(files: Iterable[str], output_name: str = None) -> None:
+def merge(files: Sequence[str], output_name: str = None) -> None:
     """
     Combine separate PDF files into a single document.
 
@@ -25,8 +24,10 @@ def merge(files: Iterable[str], output_name: str = None) -> None:
         print('Program stopped by user.')
         return
 
-    save_path = 'merged.pdf' if output_name is None else output_name
-    save_path = str(Path(save_path).resolve())
+    files = validate_files_and_handle_error(files)
+    output_name = validate_output_name_and_handle_error(
+        'merged.pdf' if output_name is None else output_name
+    )
 
     merger = PyPDF2.PdfFileMerger(strict=False)
     for file in files:

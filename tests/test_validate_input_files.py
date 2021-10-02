@@ -28,7 +28,7 @@ class TestValidateFiles(unittest.TestCase):
         files = validate_files_and_handle_error(files)
         self.assertTrue(all(map(lambda file: isinstance(file, str), files)))
 
-    def test_files_are_absolute(self):
+    def test_files_are_absolute(self) -> None:
         files: Sequence[str] = [f'{i}.pdf' for i in range(3)]
         files = validate_files_and_handle_error(files)
         self.assertTrue(all(map(lambda file: Path(file).is_absolute(), files)))
